@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🦠 Quiz Vi Sinh – Tự Làm</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{min-height:100vh;font-family:'Be Vietnam Pro',sans-serif;background:#0a0f1e;overflow-x:hidden;}
+.bg{position:fixed;inset:0;z-index:0;background:linear-gradient(135deg,#0a0f1e 0%,#0f1f3d 50%,#0a0f1e 100%);}
+.bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(59,130,246,.28) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 100%,rgba(16,185,129,.18) 0%,transparent 60%);animation:bgP 6s ease-in-out infinite alternate;}
+@keyframes bgP{from{opacity:.7}to{opacity:1}}
+.particles{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.particle{position:absolute;border-radius:50%;animation:floatUp linear infinite;opacity:.12;}
+@keyframes floatUp{0%{transform:translateY(100vh) rotate(0deg);opacity:0}10%{opacity:.12}90%{opacity:.12}100%{transform:translateY(-20px) rotate(720deg);opacity:0}}
+#app{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 16px 40px;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{0%{transform:scale(.85);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+@keyframes correctPop{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
+@keyframes streakB{0%{transform:scale(0) rotate(-10deg);opacity:0}60%{transform:scale(1.3) rotate(3deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes confD{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(90px) rotate(360deg);opacity:0}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,.4)}50%{box-shadow:0 0 0 8px rgba(59,130,246,0)}}
+#welcome{text-align:center;max-width:500px;width:100%;animation:fadeUp .6s ease;}
+.logo{font-size:64px;margin-bottom:10px;animation:bounce 2s ease infinite;display:inline-block;}
+.welcome-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:clamp(20px,5vw,34px);background:linear-gradient(135deg,#93c5fd,#6ee7b7,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;line-height:1.1;}
+.welcome-sub{color:#93c5fd;font-size:13px;margin-bottom:20px;}
+.exam-label{color:#bfdbfe;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
+.exam-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px;}
+.exam-btn{background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.12);border-radius:13px;padding:12px 9px;cursor:pointer;transition:all .2s;text-align:center;color:white;}
+.exam-btn:hover{border-color:#60a5fa;background:rgba(96,165,250,.12);}
+.exam-btn.active{border-color:#3b82f6;background:linear-gradient(135deg,rgba(59,130,246,.3),rgba(16,185,129,.2));box-shadow:0 0 0 1px #3b82f6;}
+.exam-btn .eb-num{font-family:'Nunito',sans-serif;font-weight:900;font-size:13px;color:#60a5fa;}
+.exam-btn .eb-count{font-size:10px;color:#93c5fd;margin-top:2px;}
+.exam-all{grid-column:1/-1;background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(251,191,36,.15));border-color:#fbbf24;}
+.exam-all .eb-num{background:linear-gradient(135deg,#60a5fa,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.exam-thi{grid-column:1/-1;background:linear-gradient(135deg,rgba(239,68,68,.2),rgba(251,191,36,.15));border-color:#ef4444;}
+.exam-thi .eb-num{background:linear-gradient(135deg,#f87171,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.btn-start{background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:white;border:none;border-radius:16px;padding:15px 48px;font-size:17px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;box-shadow:0 8px 32px rgba(59,130,246,.4);transition:transform .15s;letter-spacing:.5px;width:100%;animation:pulse 2s infinite;}
+.btn-start:disabled{opacity:.4;cursor:not-allowed;animation:none;box-shadow:none;}
+.btn-start:not(:disabled):active{transform:scale(.96);}
+#quiz{display:none;width:100%;max-width:480px;}
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.streak{background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:12px;padding:6px 10px;font-family:'Nunito',sans-serif;font-weight:900;font-size:13px;color:white;display:flex;align-items:center;gap:4px;box-shadow:0 4px 12px rgba(239,68,68,.4);min-width:52px;justify-content:center;}
+.streak.pop{animation:streakB .5s ease forwards;}
+.prog-wrap{flex:1;}
+.prog-nums{display:flex;justify-content:space-between;color:#93c5fd;font-size:11px;font-weight:600;margin-bottom:4px;}
+.prog-bar{background:rgba(255,255,255,.08);border-radius:999px;height:7px;overflow:hidden;}
+.prog-fill{background:linear-gradient(90deg,#1d4ed8,#3b82f6,#fbbf24);height:100%;border-radius:999px;transition:width .5s cubic-bezier(.4,0,.2,1);background-size:200% 100%;animation:shimmer 2s linear infinite;}
+.gem{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:5px 10px;font-family:'Nunito',sans-serif;font-weight:900;font-size:13px;color:#60a5fa;display:flex;align-items:center;gap:3px;}
+.chu-de-tag{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);border-radius:8px;padding:3px 12px;font-size:11px;font-weight:700;color:#93c5fd;margin-bottom:8px;display:inline-block;}
+.q-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(16px);border-radius:22px;padding:22px 20px 18px;margin-bottom:12px;box-shadow:0 8px 32px rgba(0,0,0,.3);}
+.q-num{color:#60a5fa;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.q-text{color:white;font-size:clamp(14px,3.8vw,17px);font-weight:600;line-height:1.65;font-family:'Nunito',sans-serif;}
+.options{display:flex;flex-direction:column;gap:9px;margin-bottom:12px;}
+.opt{border:none;border-radius:14px;padding:13px 14px;text-align:left;cursor:pointer;font-size:13.5px;font-weight:600;color:white;display:flex;align-items:flex-start;gap:9px;transition:transform .12s,filter .12s;font-family:'Be Vietnam Pro',sans-serif;line-height:1.45;width:100%;}
+.opt:active:not(.disabled){transform:scale(.97);}
+.oA{background:linear-gradient(135deg,#1e3a5f,#1d4ed8);box-shadow:0 4px 14px rgba(29,78,216,.4);}
+.oB{background:linear-gradient(135deg,#065f46,#047857);box-shadow:0 4px 14px rgba(6,95,70,.35);}
+.oC{background:linear-gradient(135deg,#7e22ce,#9333ea);box-shadow:0 4px 14px rgba(126,34,206,.35);}
+.oD{background:linear-gradient(135deg,#92400e,#b45309);box-shadow:0 4px 14px rgba(146,64,14,.35);}
+.opt.selected{transform:scale(1.025);filter:brightness(1.25);}
+.opt.correct{background:linear-gradient(135deg,#16a34a,#15803d)!important;box-shadow:0 6px 24px rgba(22,163,74,.5)!important;animation:correctPop .4s ease;}
+.opt.wrong{background:linear-gradient(135deg,#dc2626,#b91c1c)!important;box-shadow:0 6px 24px rgba(220,38,38,.5)!important;animation:shake .4s ease;}
+.opt.disabled{cursor:default;} .opt.dim{filter:brightness(.42);transform:scale(.98);}
+.opt-l{background:rgba(0,0,0,.25);border-radius:7px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;font-weight:900;font-size:12px;flex-shrink:0;margin-top:1px;}
+.opt-t{flex:1;} .opt-i{font-size:18px;flex-shrink:0;margin-top:2px;}
+.feedback{border-radius:14px;padding:12px 16px;text-align:center;font-weight:700;font-size:13px;margin-bottom:12px;display:none;animation:popIn .35s ease;line-height:1.5;}
+.feedback.ok{background:rgba(22,163,74,.2);border:1.5px solid #4ade80;color:#4ade80;}
+.feedback.fail{background:rgba(220,38,38,.2);border:1.5px solid #f87171;color:#f87171;}
+.btn-c{width:100%;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:white;box-shadow:0 6px 20px rgba(29,78,216,.4);transition:all .15s;}
+.btn-c:disabled{background:rgba(255,255,255,.07);color:rgba(255,255,255,.25);box-shadow:none;cursor:not-allowed;}
+.btn-c:not(:disabled):active{transform:scale(.97);}
+.btn-n{display:none;width:100%;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#059669,#10b981);color:white;box-shadow:0 6px 20px rgba(5,150,105,.4);animation:popIn .3s ease;}
+.btn-n:active{transform:scale(.97);}
+#result{display:none;width:100%;max-width:460px;text-align:center;animation:fadeUp .5s ease;}
+.r-fire{font-size:60px;margin-bottom:10px;display:inline-block;animation:bounce 1.5s infinite;}
+.r-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:30px;color:white;margin-bottom:4px;}
+.r-sub{color:#93c5fd;font-size:13px;margin-bottom:20px;}
+.r-card{background:linear-gradient(135deg,rgba(29,78,216,.25),rgba(59,130,246,.2));border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:24px;margin-bottom:18px;}
+.r-big{font-family:'Nunito',sans-serif;font-weight:900;font-size:58px;line-height:1;}
+.r-pct{font-size:15px;font-weight:700;color:#93c5fd;margin-top:5px;}
+.r-lbl{font-size:17px;font-weight:800;margin-top:7px;color:white;}
+.score-board{background:rgba(0,0,0,.3);border-radius:14px;padding:16px;margin-bottom:16px;display:none;}
+.score-board-title{color:#fbbf24;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
+.score-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:13px;color:#93c5fd;}
+.score-row:last-child{border-bottom:none;}
+.score-val{font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;color:white;}
+.r-list{margin-bottom:18px;display:flex;flex-direction:column;gap:6px;max-height:320px;overflow-y:auto;}
+.ri{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:10px;font-size:12px;}
+.ri.ok{background:rgba(22,163,74,.15);border:1px solid rgba(74,222,128,.25);}
+.ri.fail{background:rgba(220,38,38,.15);border:1px solid rgba(248,113,113,.25);}
+.ri-ic{font-size:14px;} .ri-lbl{flex:1;font-weight:600;color:white;font-size:12px;} .ri-det{font-size:11px;color:#fca5a5;}
+.btn-r{width:100%;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:white;box-shadow:0 8px 28px rgba(29,78,216,.4);margin-bottom:10px;}
+.btn-r:active{transform:scale(.97);}
+.btn-back{width:100%;border:1.5px solid rgba(96,165,250,.35);border-radius:14px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;background:transparent;color:#93c5fd;}
+.conf{position:fixed;top:0;border-radius:3px;z-index:999;pointer-events:none;animation:confD 1.3s ease-out forwards;}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="particles" id="pts"></div>
+<div id="app">
+<div id="welcome">
+  <div class="logo">🧫</div>
+  <div class="welcome-title">Vi Sinh – Tài Liệu Tự Làm</div>
+  <div class="welcome-sub">224 câu · 6 chủ đề · Chọn để bắt đầu ôn tập</div>
+  <div class="exam-label">Chọn chủ đề</div>
+  <div class="exam-grid" id="examGrid">
+    <div class="exam-btn" onclick="sel(0)" id="eb0"><div class="eb-num">🔬 Chủ đề 1</div><div class="eb-count">Đại cương VK & Virus · 37 câu</div></div>
+    <div class="exam-btn" onclick="sel(1)" id="eb1"><div class="eb-num">🏥 Chủ đề 2</div><div class="eb-count">Nhiễm trùng, Độc tố & KS · 36 câu</div></div>
+    <div class="exam-btn" onclick="sel(2)" id="eb2"><div class="eb-num">🪱 Chủ đề 3</div><div class="eb-count">Ký sinh trùng & Đơn bào · 59 câu</div></div>
+    <div class="exam-btn" onclick="sel(3)" id="eb3"><div class="eb-num">💉 Chủ đề 4</div><div class="eb-count">Miễn dịch & Vaccine · 17 câu</div></div>
+    <div class="exam-btn" onclick="sel(4)" id="eb4"><div class="eb-num">🦠 Chủ đề 5</div><div class="eb-count">VK gây bệnh đặc hiệu · 45 câu</div></div>
+    <div class="exam-btn" onclick="sel(5)" id="eb5"><div class="eb-num">🧬 Chủ đề 6</div><div class="eb-count">Bệnh do Virus · 30 câu</div></div>
+    <div class="exam-btn exam-all" onclick="sel(6)" id="eb6"><div class="eb-num">⚡ Tổng hợp tất cả</div><div class="eb-count">224 câu (ngẫu nhiên)</div></div>
+    <div class="exam-btn exam-thi" onclick="sel(7)" id="eb7"><div class="eb-num">📝 Đề thi thử</div><div class="eb-count">40 câu ngẫu nhiên · Có tính điểm</div></div>
+  </div>
+  <button class="btn-start" id="btnStart" onclick="startQuiz()" disabled>Bắt đầu ngay!</button>
+</div>
+<div id="quiz">
+  <div class="topbar">
+    <div class="streak" id="stk">🔥 0</div>
+    <div class="prog-wrap">
+      <div class="prog-nums"><span id="pTxt">1/37</span><span id="sTxt">0 điểm</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="pFill" style="width:0%"></div></div>
+    </div>
+    <div class="gem">💎 <span id="gScore">0</span></div>
+  </div>
+  <div class="chu-de-tag" id="chuDeTag">Chủ đề 1</div>
+  <div class="q-card">
+    <div class="q-num" id="qN">CÂU 1</div>
+    <div class="q-text" id="qT"></div>
+  </div>
+  <div class="options" id="opts"></div>
+  <div class="feedback" id="fb"></div>
+  <button class="btn-c" id="btnC" onclick="confirmAns()" disabled>Xác nhận</button>
+  <button class="btn-n" id="btnN" onclick="nextQ()">Câu tiếp →</button>
+</div>
+<div id="result">
+  <div class="r-fire" id="rFire">🎉</div>
+  <div class="r-title">Hoàn thành!</div>
+  <div class="r-sub" id="rSub">Vi Sinh – Tài liệu tự làm</div>
+  <div class="r-card">
+    <div class="r-big" id="rBig"></div>
+    <div class="r-pct" id="rPct"></div>
+    <div class="r-lbl" id="rLbl"></div>
+  </div>
+  <div class="score-board" id="scoreboard">
+    <div class="score-board-title">📊 Kết quả đề thi thử</div>
+    <div class="score-row"><span>Số câu đúng</span><span class="score-val" id="sbCorrect">0/40</span></div>
+    <div class="score-row"><span>Điểm số (thang 10)</span><span class="score-val" id="sbScore">0.0</span></div>
+    <div class="score-row"><span>Xếp loại</span><span class="score-val" id="sbGrade">-</span></div>
+    <div class="score-row"><span>Thời gian làm bài</span><span class="score-val" id="sbTime">-</span></div>
+  </div>
+  <div class="r-list" id="rList"></div>
+  <button class="btn-r" id="btnRestart" onclick="restart()">🔄 Làm lại</button>
+  <button class="btn-back" onclick="backToMenu()">← Chọn chủ đề khác</button>
+</div>
+</div>
+<script>
+const EXAMS=[
+// G1: Đại cương Vi khuẩn & Virus
+[
+{id:"1-1",q:"Đối tượng nghiên cứu chính của vi sinh vật học bao gồm những nhóm nào?",o:["Ký sinh trùng, tảo và nấm","Virus, vi khuẩn và nấm","Động vật nguyên sinh và vi khuẩn","Thực vật bậc thấp và virus"],a:1},
+{id:"1-2",q:"Đặc điểm chung cơ bản nhất của các vi sinh vật là gì?",o:["Cấu tạo đa bào phức tạp","Kích thước rất nhỏ bé","Chỉ sinh sản hữu tính","Luôn ký sinh nội bào bắt buộc"],a:1},
+{id:"1-3",q:"Thành phần cấu tạo chính của vách tế bào vi khuẩn là gì?",o:["Cellulose","Chitin","Peptidoglycan","Glycoprotein"],a:2},
+{id:"1-4",q:"Sau khi nhuộm Gram, vi khuẩn Gram âm bắt màu gì?",o:["Màu tím của crystal violet","Màu xanh của methylene","Màu vàng của iod","Màu đỏ/hồng của fuchsin hoặc safranin"],a:3},
+{id:"1-5",q:"Phương pháp nhuộm lao (Ziehl-Neelsen) làm cho vi khuẩn bắt màu gì?",o:["Đỏ của fuchsin","Tím của crystal violet","Xanh của malachite","Hồng nhạt của safranin"],a:0},
+{id:"1-6",q:"Sau khi nhuộm Gram, vi khuẩn Gram dương bắt màu gì?",o:["Màu đỏ","Màu hồng","Màu tím","Màu xanh lục"],a:2},
+{id:"1-7",q:"Vi khuẩn thuộc nhóm sinh vật nào sau đây?",o:["Eukaryotae (Sinh vật nhân thực)","Prokaryotae (Sinh vật nhân sơ)","Fungi (Giới nấm)","Protista (Sinh vật nguyên sinh)"],a:1},
+{id:"1-8",q:"Đơn vị đo lường thường được sử dụng để đo kích thước vi khuẩn là gì?",o:["Nanomet (nm)","Milimet (mm)","Micromet (µm)","Picomet (pm)"],a:2},
+{id:"1-9",q:"Kích thước của virus thường được đo bằng đơn vị nào?",o:["Nanomet (nm)","Micromet (µm)","Milimet (mm)","Centimet (cm)"],a:0},
+{id:"1-10",q:"Thành phần nào sau đây KHÔNG CÓ trong thành tế bào của vi khuẩn Gram âm?",o:["Peptidoglycan","Màng ngoài (Outer membrane)","Acid teichoic","Lipopolysaccharide"],a:2},
+{id:"1-11",q:"Câu 11",o:["Lớp vỏ nang (Capsule)","Lớp màng sinh chất","Lớp peptidoglycan","Lớp lông (Pili)"],a:2},
+{id:"1-12",q:"Thành phần nào sau đây KHÔNG CÓ trong thành tế bào vi khuẩn Gram dương?",o:["Acid teichoic","Peptidoglycan","Lipid A","Protein màng"],a:2},
+{id:"1-13",q:"Hình thể của virus có thể tồn tại ở những dạng nào?",o:["Chỉ có hình cầu","Hình cầu, hình que hoặc hình xoắn","Hình khối đa diện và hình dấu phẩy","Chỉ có hình xoắn ốc"],a:1},
+{id:"1-14",q:"Câu 14",o:["Staphylococcus","Streptococcus","Mycobacterium","Mycoplasma"],a:3},
+{id:"1-15",q:"Đặc điểm ký sinh của Chlamydia là gì?",o:["Sống hoại sinh trong đất","Ký sinh ngoại bào","Ký sinh nội bào bắt buộc","Sống hội sinh trên da người"],a:2},
+{id:"1-16",q:"Nhu cầu dinh dưỡng của vi sinh vật phụ thuộc vào yếu tố nào?",o:["Hình dạng tế bào và khả năng di động","Khối lượng cơ thể và tốc độ chuyển hóa","Kích thước và màu sắc của vi sinh vật","Cấu trúc vách tế bào và vỏ nang"],a:1},
+{id:"1-17",q:"Tế bào vi khuẩn được phân loại là loại tế bào nào?",o:["Tế bào nhân thực (Eukaryote)","Tế bào nhân sơ (Prokaryote)","Tế bào động vật","Tế bào thực vật"],a:1},
+{id:"1-18",q:"Thành phần nào chiếm tỷ lệ lớn nhất trong tế bào vi sinh vật?",o:["Protein","Nước","Lipid","Carbohydrate"],a:1},
+{id:"1-19",q:"Câu 19",o:["Duy trì hình dạng tế bào","Tổng hợp protein","Cung cấp năng lượng","Mang thông tin di truyền"],a:0},
+{id:"1-20",q:"Vi khuẩn sinh sản vô tính chủ yếu bằng hình thức nào?",o:["Nảy chồi","Tạo bào tử","Trực phân/phân đôi","Phân mảnh"],a:2},
+{id:"1-21",q:"Yếu tố nào đóng vai trò tạo biến dị di truyền ở tế bào vi khuẩn?",o:["Sinh sản sinh dưỡng","Đột biến","Quá trình trao đổi chất","Sự phân bào"],a:1},
+{id:"1-22",q:"Câu 22",o:["Tiên mao (Flagella)","Vỏ nang (Capsule)","Pili giới tính","Ribosome"],a:2},
+{id:"1-23",q:"Thành phần cơ bản cấu tạo nên một virion (hạt virus hoàn chỉnh) bao gồm những gì?",o:["Capsid và acid nucleic (ADN hoặc ARN)","Vách peptidoglycan và nhân ADN","Màng bào tương và ribosom","Vỏ ngoài và các bào quan"],a:0},
+{id:"1-24",q:"Câu 24",o:["Lipoprotein","Glycoprotein","Phospholipid","Nucleoprotein"],a:1},
+{id:"1-25",q:"Câu 25",o:["Xâm nhập → Hấp phụ → Lắp ráp → Tổng hợp → Giải phóng","Hấp phụ → Xâm nhập → Tổng hợp → Lắp ráp → Giải phóng","Hấp phụ → Tổng hợp → Lắp ráp → Xâm nhập → Giải phóng","Xâm nhập → Tổng hợp → Hấp phụ → Lắp ráp → Giải phóng"],a:1},
+{id:"1-26",q:"Hiện tượng gì thường xảy ra với tế bào chủ khi virus hoàn thành chu trình nhân lên?",o:["Tế bào chủ phân chia mạnh mẽ hơn","Tế bào chủ tạo ra nhiều kháng thể","Tế bào chủ có thể bị phá hủy","Tế bào chủ chuyển thành tế bào ung thư ngay lập tức"],a:2},
+{id:"1-27",q:"Một trong những hậu quả khi tế bào chủ bị nhiễm virus là gì?",o:["Tăng cường khả năng tổng hợp ATP","Làm sai lệch nhiễm sắc thể tế bào chủ","Kích thích vi khuẩn phát triển","Dày lên của vách tế bào"],a:1},
+{id:"1-28",q:"Hậu quả của việc virus làm sai lệch nhiễm sắc thể ở tế bào chủ có thể dẫn đến hiện tượng gì?",o:["Suy dinh dưỡng","Có thể gây dị tật bẩm sinh","Tăng khả năng miễn dịch","Thay đổi nhóm máu"],a:1},
+{id:"1-29",q:"Đặc điểm cấu tạo cốt lõi của virus là gì?",o:["Có nhân chứa cả ADN và ARN","Nhân ADN hoặc ARN","Có chứa ribosome để tự tổng hợp protein","Có cấu trúc vách tế bào vững chắc"],a:1},
+{id:"1-30",q:"Đặc điểm sinh tồn của nha bào vi khuẩn uốn ván là gì?",o:["Chỉ tồn tại khi có nhiều oxy","Bị tiêu diệt nhanh chóng ở môi trường ngoài","Có thể tồn tại mà không cần chất dinh dưỡng","Cần được cung cấp protein liên tục"],a:2},
+{id:"1-31",q:"Khả năng chịu đựng môi trường khắc nghiệt của nha bào vi khuẩn như thế nào?",o:["Chết ngay ở nhiệt độ 60°C","Chỉ tồn tại được ở nhiệt độ lạnh","Có khả năng tồn tại, kể cả ở 100°C trong một thời gian","Bị tiêu diệt dễ dàng bởi xà phòng thông thường"],a:2},
+{id:"1-32",q:"Vùng nhân (nucleoid) của vi khuẩn có đặc điểm gì?",o:["Chứa ARN và có màng nhân bao quanh","Không có màng bao quanh và chứa ADN","Chứa nhiều nhiễm sắc thể tuyến tính","Nằm độc lập ngoài màng tế bào"],a:1},
+{id:"1-33",q:"Ngoài ADN nhiễm sắc thể chính, vi khuẩn còn có thể mang yếu tố di truyền nhỏ nào?",o:["Ribosome","Plasmid","Mesosome","Lysosome"],a:1},
+{id:"1-34",q:"Nhận định nào sau đây về virus là đúng?",o:["Virus là một tế bào sống hoàn chỉnh","Virus có cấu tạo vách tế bào giống vi khuẩn","Virus không phải là tế bào sống","Virus có khả năng tự trao đổi chất"],a:2},
+{id:"1-35",q:"Khẳng định nào sau đây đúng về cấu trúc pili ở vi khuẩn?",o:["Là thành phần bắt buộc phải có ở mọi vi khuẩn","Chỉ có ở vi khuẩn Gram dương","Pili không phải là thành phần bắt buộc có trong mọi tế bào vi khuẩn","Pili đảm nhiệm chức năng bảo vệ vi khuẩn khỏi thực bào"],a:2},
+{id:"1-36",q:"Vật chất di truyền của virus có thể là gì?",o:["Luôn luôn là ADN","Luôn luôn là ARN","Có cả ADN và ARN cùng lúc","Có thể là ADN hoặc ARN"],a:3},
+{id:"1-37",q:"Câu 37",o:["Lipid","Carbohydrate","Protein","Lipopolysaccharide"],a:2}
+],
+// G2: Nhiễm trùng, Độc tố & Kháng sinh
+[
+{id:"2-38",q:"Ở điều kiện bình thường khỏe mạnh, môi trường máu trong cơ thể người có đặc điểm gì về mặt vi sinh?",o:["Chứa rất nhiều vi khuẩn có lợi","Là môi trường vô khuẩn","Chứa chủ yếu là virus","Luôn có vi khuẩn đường ruột thường trú"],a:1},
+{id:"2-39",q:"Câu 39",o:["Lõi peptidoglycan","Lipid A trong lipopolysaccharide (LPS)","Protein màng ngoài","Acid teichoic"],a:1},
+{id:"2-40",q:"Ngoại độc tố có thể bị phân hủy bởi loại enzyme nào sau đây?",o:["Lipase","Amylase","Protease","Nuclease"],a:2},
+{id:"2-41",q:"Ngoại độc tố được giải phóng ra khỏi tế bào vi khuẩn vào lúc nào?",o:["Khi vi khuẩn đã bị ly giải","Được tiết ra khi vi khuẩn còn sống","Khi vi khuẩn tạo nha bào","Chỉ khi vi khuẩn bị tác động bởi kháng sinh"],a:1},
+{id:"2-42",q:"Nhóm vi khuẩn nào có khả năng tạo ra ngoại độc tố?",o:["Chỉ vi khuẩn Gram âm","Chỉ vi khuẩn Gram dương","Có thể gặp ở cả vi khuẩn Gram dương và Gram âm","Chỉ gặp ở vi khuẩn kháng cồn acid"],a:2},
+{id:"2-43",q:"Nội độc tố được giải phóng ra môi trường khi nào?",o:["Được tiết ra liên tục khi vi khuẩn còn sống","Khi vi khuẩn trao đổi chất mạnh nhất","Khi vi khuẩn bị ly giải","Khi vi khuẩn đang phân chia"],a:2},
+{id:"2-44",q:"Đặc điểm nào sau đây là của ngoại độc tố?",o:["Tính kháng nguyên yếu, không dùng sản xuất vaccine","Tính kháng nguyên tốt, có thể dùng sản xuất vaccine giải độc tố","Được giải phóng khi vi khuẩn chết và vỡ ra","Bản chất là lipopolysaccharide"],a:1},
+{id:"2-45",q:"Đặc điểm nào sau đây đúng với nội độc tố?",o:["Có tính kháng nguyên rất mạnh","Được dùng làm vaccine giải độc tố","Bản chất là protein","Tính kháng nguyên yếu, không dùng sản xuất vaccine giải độc tố"],a:3},
+{id:"2-46",q:"Tình trạng vi sinh vật cư trú ở một cơ quan trong cơ thể nhưng chưa gây triệu chứng ngay được gọi là gì?",o:["Nhiễm trùng cấp tính","Nhiễm trùng tiềm tàng","Nhiễm trùng mạn tính","Nhiễm trùng cơ hội"],a:1},
+{id:"2-47",q:"Đặc điểm của nhiễm trùng tiềm tàng là gì?",o:["Gây bệnh dữ dội ngay khi xâm nhập","Tự đào thải vi sinh vật ra ngoài trong thời gian ngắn","Khi gặp điều kiện thuận lợi thì gây nhiễm trùng rõ rệt","Luôn dẫn đến tử vong"],a:2},
+{id:"2-48",q:"Loại nhiễm trùng nào có thời gian ủ bệnh dài nhất?",o:["Nhiễm trùng cấp tính","Nhiễm trùng bán cấp","Nhiễm trùng chậm","Nhiễm trùng tại chỗ"],a:2},
+{id:"2-49",q:"Nội độc tố của vi khuẩn là thành phần nằm ở đâu?",o:["Vỏ nang của vi khuẩn Gram dương","Thành tế bào vi khuẩn Gram âm","Lớp lông (pili) của vi khuẩn","Lõi nhân của virus"],a:1},
+{id:"2-50",q:"Yếu tố nào đóng vai trò quan trọng quyết định việc có xảy ra tình trạng nhiễm trùng hay không?",o:["Hình dạng của vi sinh vật","Khả năng xâm nhập","Kích thước của vi sinh vật","Khả năng di động"],a:1},
+{id:"2-51",q:"Enzyme fibrinolysin do vi khuẩn tiết ra có tác dụng gì?",o:["Phân hủy mô liên kết","Làm tan hồng cầu","Làm tan sợi huyết","Phá hủy màng tế bào"],a:2},
+{id:"2-52",q:"Enzyme hemolysin có khả năng gây ra hiện tượng gì trên cơ thể vật chủ?",o:["Làm đông huyết tương","Làm tan hồng cầu","Thủy phân lipid","Phá hủy bạch cầu"],a:1},
+{id:"2-53",q:"Vi sinh vật gây ra các vụ dịch lớn trong cộng đồng thường lây truyền qua con đường nào?",o:["Đường tiêu hóa","Đường máu","Đường da và niêm mạc","Đường hô hấp"],a:3},
+{id:"2-54",q:"Trong điều kiện bình thường của cơ thể khỏe mạnh, vi sinh vật KHÔNG tồn tại ở cơ quan nào sau đây?",o:["Dạ dày","Não","Da","Đường ruột"],a:1},
+{id:"2-55",q:"Loại vi khuẩn nào thường gặp nhất trên da người?",o:["Tụ cầu da","Liên cầu khuẩn","Trực khuẩn mủ xanh","Phế cầu"],a:0},
+{id:"2-56",q:"Nơi nào trong hệ tiêu hóa có số lượng vi khuẩn thường trú ít nhất?",o:["Khoang miệng","Dạ dày","Đại tràng","Vùng hầu họng"],a:1},
+{id:"2-57",q:"Nhiễm trùng bệnh viện được xác định khi nó xảy ra sau bao lâu kể từ lúc bệnh nhân nhập viện?",o:["Ít nhất 12 giờ","Ít nhất 24 giờ","Ít nhất 48 giờ","Ít nhất 72 giờ"],a:2},
+{id:"2-58",q:"Yếu tố nào sau đây KHÔNG phải là hậu quả của nhiễm trùng bệnh viện?",o:["Tăng tỷ lệ kháng kháng sinh","Tăng chi phí điều trị","Tăng nguy cơ tử vong","Rút ngắn thời gian nằm viện"],a:3},
+{id:"2-59",q:"Nha bào vi khuẩn có thể bị tiêu diệt triệt để bằng phương pháp nào sau đây?",o:["Đun sôi 100°C trong 15 phút","Hấp ướt ở 121°C trong 30 phút","Ngâm trong cồn 70 độ","Phơi dưới ánh nắng mặt trời"],a:1},
+{id:"2-60",q:"Việc chiếu tia gamma được phân loại là phương pháp gì trong kiểm soát vi sinh vật?",o:["Khử trùng","Tiệt khuẩn","Làm sạch","Sát khuẩn"],a:1},
+{id:"2-61",q:"Phương pháp phun chloramine thuộc nhóm biện pháp nào?",o:["Tiệt trùng","Vô khuẩn","Khử trùng","Kháng sinh"],a:2},
+{id:"2-62",q:"Phương pháp tiệt trùng nào được đánh giá là hữu hiệu nhất hiện nay?",o:["Sử dụng hóa chất bay hơi","Sấy khô ở nhiệt độ cao","Hơi nước căng","Lọc vô khuẩn"],a:2},
+{id:"2-63",q:"Điểm khác biệt lớn nhất giữa tiệt trùng và khử trùng là gì?",o:["Khử trùng tiêu diệt được nha bào, tiệt trùng thì không.","Tiệt trùng tiêu diệt tất cả vi sinh vật và nha bào, khử trùng không nhất thiết tiêu diệt hoàn toàn bào tử.","Tiệt trùng chỉ loại bỏ phần lớn vi sinh vật.","Khử trùng dùng cho mô sống, tiệt trùng dùng cho đồ vật."],a:1},
+{id:"2-64",q:"Câu 64",o:["Khử trùng mức độ cao","Sát khuẩn bằng dung dịch iod","Rửa bằng nước cất","Tiệt trùng"],a:3},
+{id:"2-65",q:"Phương pháp nào được sử dụng để tiệt trùng vaccine và huyết thanh?",o:["Hấp ướt ở 121°C","Sấy khô","Lọc vô khuẩn / vô trùng","Chiếu tia tử ngoại (UV)"],a:2},
+{id:"2-66",q:"Câu 66",o:["Ức chế tổng hợp protein","Ức chế sinh tổng hợp vách tế bào vi khuẩn","Gây rối loạn màng bào tương","Ức chế tổng hợp acid nucleic"],a:1},
+{id:"2-67",q:"Kháng sinh polymyxin tác động lên vi khuẩn theo cơ chế nào?",o:["Ức chế sinh tổng hợp vách","Gây rối loạn chức năng màng bào tương của vi khuẩn","Ức chế sao chép ADN","Ngăn cản sinh tổng hợp protein"],a:1},
+{id:"2-68",q:"Thuốc INH (isoniazid) có đặc điểm nào sau đây?",o:["Là kháng sinh phổ rộng","Dùng điều trị nhiễm trùng gram âm","Là thuốc kháng lao có phổ chọn lọc","Có tác dụng tiêu diệt virus"],a:2},
+{id:"2-69",q:"Vi khuẩn kháng thuốc được định nghĩa là gì?",o:["Vi khuẩn sinh sản nhanh hơn khi có mặt thuốc","Vi khuẩn không còn nhạy cảm với thuốc kháng sinh","Vi khuẩn tự động chuyển thành dạng nha bào","Vi khuẩn thay đổi hình dạng dưới tác dụng của thuốc"],a:1},
+{id:"2-70",q:"Trên kết quả kháng sinh đồ, vi khuẩn nhạy cảm với kháng sinh được ký hiệu bằng chữ cái nào?",o:["R","I","S","M"],a:2},
+{id:"2-71",q:"Vi khuẩn có thể truyền gen kháng kháng sinh qua những phương thức nào?",o:["Phân đôi, nảy chồi và tạo nha bào","Tiếp hợp, tải nạp và biến nạp","Thẩm thấu, khuếch tán và vận chuyển tích cực","Hô hấp, lên men và quang hợp"],a:1},
+{id:"2-72",q:"Hệ quả của việc lây truyền gen kháng thuốc giữa các vi khuẩn là gì?",o:["Làm vi khuẩn phát triển chậm lại","Giảm khả năng gây bệnh của vi khuẩn","Tạo vi khuẩn đa kháng, lan truyền nhanh và gây khó khăn cho điều trị","Giúp vi khuẩn dễ bị tiêu diệt bởi nhiệt độ"],a:2},
+{id:"2-73",q:"Câu 73",o:["Ức chế sinh tổng hợp vách tế bào","Ức chế sao chép ADN","Gây rối loạn màng bào tương","Ức chế tổng hợp protein"],a:1}
+],
+// G3: Ký sinh trùng & Đơn bào
+[
+{id:"3-74",q:"Ký sinh trùng được định nghĩa là sinh vật như thế nào?",o:["Sống độc lập trong môi trường tự nhiên","Sống nhờ vào sinh vật đang sống khác và lấy dinh dưỡng từ vật chủ","Tự tổng hợp chất hữu cơ từ ánh sáng mặt trời","Sống hoại sinh trên xác động thực vật"],a:1},
+{id:"3-75",q:"Vật chủ chính của ký sinh trùng là gì?",o:["Vật chủ mang ký sinh trùng ở giai đoạn ấu trùng","Vật chủ mang ký sinh trùng ở giai đoạn sinh sản vô tính","Vật chủ mang ký sinh trùng ở giai đoạn sinh sản hữu tính","Nơi ký sinh trùng tồn tại ngoài môi trường"],a:2},
+{id:"3-76",q:"Vật chủ trung gian là vật chủ mang ký sinh trùng ở giai đoạn nào?",o:["Sinh sản hữu tính","Trưởng thành hoàn toàn","Sinh sản vô tính hoặc ấu trùng","Bào nang"],a:2},
+{id:"3-77",q:"Đặc điểm của đa số các bệnh do ký sinh trùng gây ra là gì?",o:["Phát bệnh rất nhanh và dữ dội","Gây tác hại từ từ","Luôn gây tử vong trong vài ngày","Tự khỏi mà không cần điều trị"],a:1},
+{id:"3-78",q:"Câu 78",o:["Từ khi trứng nở đến khi chết","Từ mầm sinh vật đầu tiên hoặc bào nang đến khi trưởng thành","Từ khi xâm nhập vật chủ đến khi rời đi","Từ khi sinh sản đến khi tạo bào nang"],a:1},
+{id:"3-79",q:"Giun đũa trưởng thành ký sinh ở vị trí nào trong cơ thể người?",o:["Dạ dày","Ruột già","Tá tràng","Ruột non"],a:3},
+{id:"3-80",q:"Thức ăn chủ yếu của giun đũa là gì?",o:["Máu","Sinh chất trong lòng ruột","Niêm mạc ruột","Dịch mật"],a:1},
+{id:"3-81",q:"Hội chứng Loeffler xuất hiện khi nào trong chu kỳ của giun đũa?",o:["Khi giun trưởng thành đẻ trứng","Khi ấu trùng giun đũa di chuyển đến phổi","Khi giun đũa chui vào ống mật","Khi giun đũa tắc ở ruột"],a:1},
+{id:"3-82",q:"Giun kim trưởng thành ký sinh ở vị trí nào?",o:["Ruột già","Ruột non","Dạ dày","Trực tràng"],a:0},
+{id:"3-83",q:"Trẻ em thường nhiễm giun kim chủ yếu qua đường nào?",o:["Đi chân đất","Mút tay hoặc đưa tay bẩn lên miệng","Ăn thịt chưa nấu chín","Bị muỗi đốt"],a:1},
+{id:"3-84",q:"Giun tóc trưởng thành ký sinh ở đâu trong cơ thể người?",o:["Dạ dày","Tá tràng","Manh tràng","Phổi"],a:2},
+{id:"3-85",q:"Thức ăn của giun tóc trưởng thành là gì?",o:["Sinh chất ruột","Vi khuẩn đường ruột","Máu","Tế bào chết"],a:2},
+{id:"3-86",q:"Vị trí ký sinh của giun móc trưởng thành là ở đâu?",o:["Ruột già","Manh tràng","Đại tràng","Tá tràng"],a:3},
+{id:"3-87",q:"Ở giai đoạn ấu trùng, giun móc xâm nhập cơ thể gây ra triệu chứng gì?",o:["Viêm phổi cấp","Viêm da","Tiêu chảy","Loét dạ dày"],a:1},
+{id:"3-88",q:"Giun chỉ sinh sản bằng hình thức nào?",o:["Phân đôi","Đẻ trứng","Đẻ ấu trùng","Tạo bào nang"],a:2},
+{id:"3-89",q:"Ấu trùng giun xoắn ký sinh ở vị trí nào trong cơ thể người?",o:["Cơ vân","Gan","Phổi","Não"],a:0},
+{id:"3-90",q:"Câu 90",o:["Phù voi","Viêm da","Tắc ruột, thủng ruột hoặc giun chui ống mật","Suy gan cấp"],a:2},
+{id:"3-91",q:"Giun chỉ ký sinh có thể gây ra biến chứng điển hình nào?",o:["Mù lòa","Phù voi ở chi","Tắc mật","Suy tim"],a:1},
+{id:"3-92",q:"Loài giun nào có khả năng hoàn thành toàn bộ chu kỳ sống ở ngoại cảnh?",o:["Giun đũa","Giun móc","Giun kim","Giun lươn"],a:3},
+{id:"3-93",q:"Loài giun nào sau đây có chu kỳ phát triển phức tạp?",o:["Giun kim","Giun đũa","Giun xoắn","Giun tóc"],a:2},
+{id:"3-94",q:"Phương pháp nào hiệu quả nhất để phát hiện nhiễm giun kim?",o:["Xét nghiệm phân thông thường","Phương pháp băng dính quanh hậu môn","Chụp X-quang","Xét nghiệm máu"],a:1},
+{id:"3-95",q:"Câu 95",o:["Tránh đi chân đất và xử lý phân hợp vệ sinh","Rửa tay sạch trước khi ăn","Mắc màn khi ngủ","Ăn chín uống sôi"],a:0},
+{id:"3-96",q:"Hành vi nào sau đây có nguy cơ cao nhiễm giun xoắn?",o:["Uống nước lã","Ăn thịt động vật hoang dã chưa nấu chín","Đi chân đất ở bãi biển","Ăn rau sống"],a:1},
+{id:"3-97",q:"Giun kim ký sinh phổ biến nhất ở đối tượng nào?",o:["Người cao tuổi","Trẻ em","Phụ nữ có thai","Thanh niên"],a:1},
+{id:"3-98",q:"Ăn gỏi cá chưa chín có nguy cơ nhiễm loại ký sinh trùng nào?",o:["Sán dây lợn","Sán lá gan nhỏ","Giun xoắn","Giun móc"],a:1},
+{id:"3-99",q:"Thói quen ăn thực vật thủy sinh sống có thể dẫn đến nhiễm loại sán nào?",o:["Sán dây bò","Sán lá ruột","Sán lá phổi","Sán dây lợn"],a:1},
+{id:"3-100",q:"Giai đoạn ấu trùng lông (miracidium) của sán diễn ra ở vật chủ nào?",o:["Lợn","Trâu, bò","Cá","Ốc"],a:3},
+{id:"3-101",q:"Nang ấu trùng sán lợn thường gặp ở các vị trí nào trên cơ thể người?",o:["Não, mắt và cơ","Phổi, gan và tim","Ruột non, dạ dày và lách","Thận, bàng quang và niệu đạo"],a:0},
+{id:"3-102",q:"Sán dây lợn trưởng thành ký sinh ở đâu?",o:["Dạ dày","Ruột già","Ruột non","Gan"],a:2},
+{id:"3-103",q:"Sán dây lây nhiễm sang người chủ yếu qua con đường nào?",o:["Muỗi đốt","Ăn thịt chưa nấu chín","Uống nước chưa đun sôi","Tiếp xúc da trực tiếp"],a:1},
+{id:"3-104",q:"Câu 104",o:["Bắt buộc phải có môi trường nước","Không yêu cầu môi trường nước","Chỉ phát triển ở môi trường nước mặn","Cần môi trường bùn lầy"],a:1},
+{id:"3-105",q:"Vị trí ký sinh thường gặp của amip trong cơ thể người là ở đâu?",o:["Dạ dày","Ruột non","Ruột già","Thực quản"],a:2},
+{id:"3-106",q:"Thể nào của amip Entamoeba histolytica là thể trực tiếp gây bệnh?",o:["Thể bào nang","Thể minuta","Thể magna","Thể sinh dưỡng không hoạt động"],a:2},
+{id:"3-107",q:"Trichomonas vaginalis ký sinh ở bộ phận nào?",o:["Niệu quản","Âm đạo","Tử cung","Bàng quang"],a:1},
+{id:"3-108",q:"Thuốc Praziquantel được sử dụng để điều trị bệnh nào sau đây?",o:["Nhiễm giun kim","Sốt rét","Nhiễm nấm Candida","Sán lá gan nhỏ"],a:3},
+{id:"3-109",q:"Đơn bào là vi sinh vật có cấu tạo như thế nào?",o:["Đa bào phức tạp","Tập đoàn tế bào","Một tế bào","Không có cấu trúc tế bào"],a:2},
+{id:"3-110",q:"Câu 110",o:["Giun kim","Giun móc","Giun đũa","Giun tóc"],a:2},
+{id:"3-111",q:"Nguy cơ nhiễm sán lá ruột tăng cao khi người bệnh có thói quen gì?",o:["Ăn thịt bò tái","Ăn rau sống thủy sinh","Uống nước lã","Ăn hải sản sống"],a:1},
+{id:"3-112",q:"Ăn nem chua có chứa ấu trùng chưa được xử lý an toàn có nguy cơ nhiễm loại ký sinh trùng nào?",o:["Sán dây bò","Sán lá gan","Giun chỉ","Sán dây lợn"],a:3},
+{id:"3-113",q:"Thói quen ăn cua đá nướng chưa chín kỹ dẫn đến nguy cơ nhiễm loại sán nào?",o:["Sán lá phổi","Sán lá gan lớn","Sán lá ruột","Sán dây"],a:0},
+{id:"3-114",q:"Câu 114",o:["Đầu, cổ và thân","Miệng, thực quản và ruột","Đầu, ngực và bụng","Chân giả, màng và nhân"],a:0},
+{id:"3-115",q:"Đặc điểm nào sau đây đúng với cấu tạo của sán lá?",o:["Có hệ thống ống tiêu hóa hoàn chỉnh","Không có hậu môn","Có vỏ kitin bao bọc","Phân tính rõ rệt"],a:1},
+{id:"3-116",q:"Đơn bào chuyển sang trạng thái nào để tồn tại ở môi trường ngoại cảnh?",o:["Thể hoạt động","Thể sinh dưỡng","Thể bào nang","Thể giao tử"],a:2},
+{id:"3-117",q:"Hình thức sinh sản bằng cách phân đôi của ký sinh trùng được gọi là gì?",o:["Sinh sản hữu tính","Sinh sản vô tính","Tiếp hợp","Nảy chồi"],a:1},
+{id:"3-118",q:"Đối tượng nghề nghiệp nào sau đây có nguy cơ cao nhiễm giun móc mỏ?",o:["Nhân viên văn phòng","Công nhân mỏ than","Giáo viên","Ngư dân"],a:1},
+{id:"3-119",q:"Tuổi thọ trung bình của giun kim là khoảng bao lâu?",o:["1-2 tuần","1-2 tháng","1-2 năm","10-15 năm"],a:1},
+{id:"3-120",q:"Giardia lamblia thuộc nhóm vi sinh vật nào?",o:["Trùng lông","Trùng chân giả","Trùng bào tử","Trùng roi"],a:3},
+{id:"3-121",q:"Plasmodium knowlesi có thể gây ra dạng sốt rét nào?",o:["Sốt rét cách nhật","Sốt rét 3 ngày một cơn","Sốt rét hằng ngày","Sốt rét ác tính bộc phát"],a:2},
+{id:"3-122",q:"Plasmodium vivax và Plasmodium ovale gây ra loại sốt rét nào?",o:["Sốt rét hằng ngày","Sốt rét cách nhật","Sốt rét 3 ngày một cơn","Sốt rét mạn tính"],a:1},
+{id:"3-123",q:"Câu 123",o:["Plasmodium falciparum","Plasmodium vivax","Plasmodium malariae","Plasmodium ovale"],a:2},
+{id:"3-124",q:"Một cơn sốt rét điển hình diễn ra qua các giai đoạn nào?",o:["Sốt nóng, vã mồ hôi, đi ngoài","Rét run, sốt nóng và vã mồ hôi","Nhức đầu, rét run, tụt huyết áp","Sốt nhẹ, ho khan, vã mồ hôi"],a:1},
+{id:"3-125",q:"Thể sốt rét ác tính nào là thường gặp nhất?",o:["Thể tiêu hóa","Thể suy thận","Thể não","Thể gan"],a:2},
+{id:"3-126",q:"Thuốc nào sau đây được sử dụng để điều trị ký sinh trùng sốt rét?",o:["Quinin","Penicillin","Praziquantel","Clotrimazole"],a:0},
+{id:"3-127",q:"Vật chủ chính của ký sinh trùng sốt rét là loài nào?",o:["Lợn","Người","Muỗi Anopheles","Khỉ"],a:2},
+{id:"3-128",q:"Trong chu kỳ phát triển của ký sinh trùng sốt rét, người đóng vai trò là vật chủ gì?",o:["Vật chủ chính","Vật chủ phụ","Vật chủ trung gian truyền bệnh","Tàng chủ"],a:1},
+{id:"3-129",q:"Câu 129",o:["Nhiễm vi khuẩn Gram dương","Nhiễm nấm","Sốt rét","Nhiễm giun sán"],a:1},
+{id:"3-130",q:"Vi sinh vật Candida được xếp vào giới nào?",o:["Giới thực vật","Giới nấm","Giới động vật","Sinh vật nhân sơ"],a:1},
+{id:"3-131",q:"Người nuôi chim bồ câu có nguy cơ cao lây nhiễm mầm bệnh nào?",o:["Aspergillus","Trichophyton","Cryptococcus neoformans","Candida albicans"],a:2},
+{id:"3-132",q:"Câu 132",o:["Miễn dịch tự nhiên","Miễn dịch bẩm sinh","Không thuộc đáp ứng miễn dịch tự nhiên","Miễn dịch thụ động"],a:2}
+],
+// G4: Miễn dịch & Vaccine
+[
+{id:"4-133",q:"Đặc điểm nào sau đây đúng với Bạch cầu T?",o:["Có khả năng tạo kháng thể","Không có chức năng thực bào","Thuộc hệ miễn dịch tự nhiên","Có khả năng biến thành đại thực bào"],a:1},
+{id:"4-134",q:"Câu 134",o:["Miễn dịch qua trung gian tế bào","Miễn dịch bẩm sinh","Miễn dịch dịch thể","Phản ứng viêm không đặc hiệu"],a:2},
+{id:"4-135",q:"Câu 135",o:["Miễn dịch dịch thể","Sản xuất kháng thể","Miễn dịch qua trung gian tế bào","Thực bào"],a:2},
+{id:"4-136",q:"Tính chất nổi bật của miễn dịch thu được là gì?",o:["Tính đặc hiệu","Không có trí nhớ miễn dịch","Đáp ứng ngay lập tức","Tính di truyền từ mẹ sang con qua gen"],a:0},
+{id:"4-137",q:"Đặc điểm nào sau đây thuộc về miễn dịch bẩm sinh?",o:["Có tính đặc hiệu cao","Có trí nhớ miễn dịch","Không đặc hiệu, không có trí nhớ miễn dịch, đáp ứng ngay lập tức","Chỉ xuất hiện sau khi tiêm vaccine"],a:2},
+{id:"4-138",q:"Miễn dịch thu được có thể hình thành qua những con đường nào?",o:["Từ khi sinh ra đã có","Di truyền qua các thế hệ","Sau mắc bệnh, khỏi bệnh hoặc tiêm chủng","Truyền qua sữa non của bò"],a:2},
+{id:"4-139",q:"Ứng dụng chính của việc tiêm vaccine là gì?",o:["Điều trị ngay lập tức bệnh nhiễm trùng cấp tính","Tạo miễn dịch bẩm sinh","Tạo miễn dịch thu được","Cung cấp kháng thể trực tiếp"],a:2},
+{id:"4-140",q:"Vaccine bất hoạt có đặc điểm gì?",o:["Chứa vi sinh vật còn sống nhưng giảm khả năng gây bệnh","Chứa độc tố chưa giải độc","Chứa virus/vi khuẩn đã bị bất hoạt hoặc tiêu diệt","Chứa kháng thể tổng hợp"],a:2},
+{id:"4-141",q:"Vaccine giảm độc lực là loại vaccine có đặc điểm gì?",o:["Chứa vi sinh vật đã bị tiêu diệt hoàn toàn bằng nhiệt","Chứa vi sinh vật sống nhưng đã bị giảm khả năng gây bệnh","Chỉ chứa độc tố của vi sinh vật","Chứa kháng thể thu được từ động vật"],a:1},
+{id:"4-142",q:"Đặc điểm nổi bật về hiệu quả của vaccine giảm độc lực là gì?",o:["Chỉ bảo vệ trong vài ngày","Cần phải tiêm nhắc lại mỗi tháng","Thường có khả năng bảo vệ lâu dài","Không tạo ra trí nhớ miễn dịch"],a:2},
+{id:"4-143",q:"Vai trò chính của vaccine đối với cơ thể là gì?",o:["Tiêu diệt trực tiếp vi sinh vật ngay khi chúng xâm nhập","Giúp hệ miễn dịch chống lại mầm bệnh","Cung cấp kháng sinh để điều trị bệnh","Phân hủy các độc tố trong máu"],a:1},
+{id:"4-144",q:"Huyết thanh miễn dịch là sản phẩm chứa thành phần nào sau đây?",o:["Kháng nguyên","Kháng thể","Vi khuẩn sống giảm độc lực","Virus đã bất hoạt"],a:1},
+{id:"4-145",q:"Nguyên tắc quan trọng nhất để vaccine phát huy hiệu quả tối đa là gì?",o:["Tiêm liều gấp đôi","Tiêm vaccine đúng lịch","Tiêm phối hợp nhiều loại vaccine cùng một mũi","Chỉ tiêm khi đang mắc bệnh"],a:1},
+{id:"4-146",q:"Huyết thanh miễn dịch được sản xuất từ nguồn nào?",o:["Nước bọt của động vật bị bệnh","Máu của người/động vật đã nhiễm bệnh hoặc đã được tiêm vaccine","Môi trường nuôi cấy nhân tạo trong phòng thí nghiệm","Tủy xương của động vật khỏe mạnh"],a:1},
+{id:"4-147",q:"Việc sử dụng huyết thanh miễn dịch có thể gây ra tác dụng phụ tại chỗ nào?",o:["Đau, mẩn đỏ","Suy hô hấp","Tăng huyết áp","Gãy xương"],a:0},
+{id:"4-148",q:"Tác dụng phụ nặng nề nhất có thể xảy ra khi sử dụng huyết thanh miễn dịch là gì?",o:["Mất ngủ","Rụng tóc","Sốc phản vệ","Viêm da cơ địa"],a:2},
+{id:"4-149",q:"Huyết thanh miễn dịch thường được sử dụng trong dự phòng và điều trị những bệnh nào sau đây?",o:["Viêm gan A, sốt xuất huyết, sởi","Viêm gan B, uốn ván và dại","Sốt rét, tả, lỵ","Lao phổi, HIV, cúm"],a:1}
+],
+// G5: Vi khuẩn gây bệnh đặc hiệu
+[
+{id:"5-150",q:"Staphylococcus aureus có khả năng tiết ra loại enzyme nào giúp làm đông huyết tương?",o:["Catalase","Coagulase","Hyaluronidase","Penicillinase"],a:1},
+{id:"5-151",q:"Hai tác nhân hàng đầu gây viêm phổi và viêm màng não ở trẻ em là gì?",o:["Staphylococcus aureus và Escherichia coli","Streptococcus pneumoniae và Haemophilus influenzae","Neisseria meningitidis và Shigella","Vibrio cholerae và Bacillus anthracis"],a:1},
+{id:"5-152",q:"Trong giai đoạn lậu cấp tính, bệnh nhân thường có biểu hiện lâm sàng nào rõ rệt nhất?",o:["Viêm màng não","Viêm niệu đạo","Viêm phổi","Viêm loét dạ dày"],a:1},
+{id:"5-153",q:"Để chẩn đoán và xác định tình trạng nhiễm liên cầu gây tan máu beta, người ta có thể làm xét nghiệm gì?",o:["Định lượng ASLO","Xét nghiệm HBsAg","Định lượng Widal","Test Mantoux"],a:0},
+{id:"5-154",q:"Neisseria meningitidis có nội độc tố gây ra tình trạng nguy hiểm nào?",o:["Liệt cơ hô hấp","Đông máu nội mạch rải rác","Suy gan cấp","Thủng ruột"],a:1},
+{id:"5-155",q:"Hội chứng sốc nhiễm độc do vi khuẩn nào tiết độc tố gây ra?",o:["Staphylococcus aureus","Escherichia coli","Vibrio cholerae","Clostridium tetani"],a:0},
+{id:"5-156",q:"Staphylococcus aureus có khả năng sinh ra loại enzyme nào giúp vi khuẩn dễ lan rộng trong mô?",o:["Amylase","Hyaluronidase","Protease","Lipase"],a:1},
+{id:"5-157",q:"Viêm cầu thận có thể xuất hiện như một biến chứng sau khi nhiễm loại vi khuẩn nào?",o:["Staphylococcus epidermidis","Streptococcus pneumoniae","Streptococcus nhóm A","Neisseria gonorrhoeae"],a:2},
+{id:"5-158",q:"Streptococcus nhóm A có đặc điểm hình thành kiểu tan máu nào trên thạch máu?",o:["Tan máu alpha","Tan máu beta","Tan máu gamma","Không tan máu"],a:1},
+{id:"5-159",q:"Tác nhân gây nhiễm trùng vết thương với đặc điểm tạo mủ vàng là vi khuẩn nào?",o:["Pseudomonas aeruginosa","Staphylococcus aureus","Streptococcus pyogenes","Escherichia coli"],a:1},
+{id:"5-160",q:"Nhiễm trùng vết thương có mủ xanh là dấu hiệu đặc trưng của vi khuẩn nào?",o:["Staphylococcus aureus","Pseudomonas aeruginosa","Bacillus anthracis","Mycobacterium tuberculosis"],a:1},
+{id:"5-161",q:"Vi khuẩn nào sau đây KHÔNG PHẢI là tác nhân thường gây nhiễm trùng vết thương?",o:["Staphylococcus aureus","Pseudomonas aeruginosa","Mycoplasma","Streptococcus nhóm A"],a:2},
+{id:"5-162",q:"Vi khuẩn nào đứng hàng đầu trong các căn nguyên gây nhiễm khuẩn huyết?",o:["Shigella","Helicobacter pylori","Staphylococcus aureus","Vibrio cholerae"],a:2},
+{id:"5-163",q:"Đặc điểm sinh hóa chung của họ vi khuẩn đường ruột (Enterobacteriaceae) là gì?",o:["Oxidase dương tính","Oxidase âm tính","Không lên men glucose","Bắt màu Gram dương"],a:1},
+{id:"5-164",q:"Vi khuẩn Vibrio cholerae có thuộc họ vi khuẩn đường ruột Enterobacteriaceae không?",o:["Có, thuộc họ Enterobacteriaceae","Không thuộc họ vi khuẩn đường ruột Enterobacteriaceae","Là một phân loài của Escherichia coli","Chỉ thuộc họ vi khuẩn đường ruột ở dạng nha bào"],a:1},
+{id:"5-165",q:"Tác nhân vi khuẩn thường gặp nhất gây ra tình trạng tiêu chảy là gì?",o:["Escherichia coli","Treponema pallidum","Clostridium tetani","Neisseria meningitidis"],a:0},
+{id:"5-166",q:"Khả năng gây bệnh của trực khuẩn lỵ được quyết định bởi các yếu tố nào?",o:["Ngoại độc tố và vỏ nang","Khả năng xâm nhập và nội độc tố","Khả năng sinh nha bào và enzyme","Lông (pili) và plasmid"],a:1},
+{id:"5-167",q:"Đặc điểm điển hình của phân ở bệnh nhân mắc bệnh lỵ là gì?",o:["Phân lỏng như nước vo gạo","Phân có nhầy và máu","Phân đen","Phân sống, nhiều mỡ"],a:1},
+{id:"5-168",q:"Treponema pallidum (xoắn khuẩn giang mai) có thể lây truyền qua con đường nào sau đây?",o:["Lây qua đường tiêu hóa","Lây từ mẹ sang con qua nhau thai","Lây qua muỗi đốt","Lây qua không khí"],a:1},
+{id:"5-169",q:"Thể bệnh nào của bệnh lao là phổ biến và gặp nhiều nhất?",o:["Lao xương","Lao màng não","Lao da","Lao phổi"],a:3},
+{id:"5-170",q:"Phương pháp nhuộm Ziehl-Neelsen được sử dụng chủ yếu để phát hiện vi khuẩn nào?",o:["Mycobacterium tuberculosis","Staphylococcus aureus","Escherichia coli","Treponema pallidum"],a:0},
+{id:"5-171",q:"Helicobacter pylori có khả năng ký sinh và gây bệnh tại cơ quan nào?",o:["Phổi","Ruột già","Dạ dày","Gan"],a:2},
+{id:"5-172",q:"Vi khuẩn Bacillus anthracis (trực khuẩn than) có đặc tính sinh học nổi bật nào?",o:["Sinh ngoại độc tố gây liệt","Có khả năng sinh nha bào","Có lông quanh thân","Chỉ sống được trong môi trường kỵ khí"],a:1},
+{id:"5-173",q:"Câu 173",o:["Nội độc tố","Vỏ nang","Ngoại độc tố","Pili giới tính"],a:2},
+{id:"5-174",q:"Đặc điểm nuôi cấy của Treponema pallidum là gì?",o:["Mọc nhanh trên môi trường thạch máu","Không thể nuôi cấy trên môi trường nhân tạo thông thường","Mọc tốt ở môi trường nước muối ưu trương","Dễ dàng nuôi cấy trong điều kiện hiếu khí"],a:1},
+{id:"5-175",q:"Vật chủ duy nhất của xoắn khuẩn Treponema pallidum là loài nào?",o:["Khỉ","Chuột","Lợn","Người"],a:3},
+{id:"5-176",q:"Vi khuẩn Escherichia coli (E. coli) thường tồn tại trong cơ thể người dưới hình thức nào?",o:["Ký sinh bắt buộc ở não","Là vi khuẩn cộng sinh trong cơ thể","Hoại sinh trên da","Gây bệnh mạn tính ở phổi"],a:1},
+{id:"5-177",q:"Đặc tính bắt màu nhuộm của trực khuẩn lao (Mycobacterium tuberculosis) là gì?",o:["Bắt màu Gram âm","Không bắt màu bất kỳ loại thuốc nhuộm nào","Kháng cồn, kháng acid","Chuyển màu liên tục"],a:2},
+{id:"5-178",q:"Đặc điểm của nha bào vi khuẩn uốn ván (Clostridium tetani) trong môi trường ngoài là gì?",o:["Dễ bị tiêu diệt bởi ánh sáng","Cần rất nhiều dinh dưỡng để tồn tại","Có thể tồn tại mà không cần dinh dưỡng","Chết ngay ở nhiệt độ 50°C"],a:2},
+{id:"5-179",q:"Tính chất hô hấp của vi khuẩn Clostridium tetani là gì?",o:["Hiếu khí tuyệt đối","Kỵ khí","Hiếu kỵ khí tùy tiện","Vi hiếu khí"],a:1},
+{id:"5-180",q:"Trực khuẩn lao có thể xâm nhập và gây bệnh ở những cơ quan nào?",o:["Chỉ ở phổi","Chỉ ở da và niêm mạc","Ở da, xương và phổi","Chủ yếu ở dạ dày"],a:2},
+{id:"5-181",q:"Theo hình thể, vi khuẩn có hình que được gọi chung là gì?",o:["Cầu khuẩn (Coccus)","Trực khuẩn (Bacillus)","Xoắn khuẩn (Spirillum)","Phẩy khuẩn (Vibrio)"],a:1},
+{id:"5-182",q:"Vi khuẩn có hình xoắn được phân loại và gọi là gì?",o:["Trực khuẩn","Cầu khuẩn","Xoắn khuẩn (spirillum/spirochete)","Phẩy khuẩn"],a:2},
+{id:"5-183",q:"Câu 183",o:["Escherichia coli","Salmonella","Shigella","Vibrio"],a:2},
+{id:"5-184",q:"Câu 184",o:["Shigella","Escherichia coli","Vibrio cholerae","Pseudomonas aeruginosa"],a:2},
+{id:"5-185",q:"Câu 185",o:["Streptococcus pneumoniae","Staphylococcus aureus","Neisseria gonorrhoeae","Neisseria meningitidis"],a:1},
+{id:"5-186",q:"Não mô cầu (Neisseria meningitidis) có đặc điểm hình thể nào khi nhuộm Gram?",o:["Trực khuẩn Gram âm","Cầu khuẩn Gram dương xếp chuỗi","Vi khuẩn đứng thành đôi, Gram âm, hình hạt cà phê","Xoắn khuẩn Gram âm"],a:2},
+{id:"5-187",q:"Vi khuẩn tả (Vibrio cholerae) xâm nhập và gây bệnh chủ yếu ở hệ cơ quan nào?",o:["Đường hô hấp","Đường tiết niệu","Đường tiêu hóa","Hệ thần kinh"],a:2},
+{id:"5-188",q:"Hình thể vi khuẩn Vibrio dưới kính hiển vi có dạng như thế nào?",o:["Hình que thẳng","Hình cong giống dấu phẩy","Hình xoắn nhiều vòng","Hình khối đa diện"],a:1},
+{id:"5-189",q:"Ý nghĩa sinh học của quá trình tạo nha bào ở một số loài vi khuẩn là gì?",o:["Để sinh sản tăng số lượng","Giúp vi khuẩn chống lại điều kiện khắc nghiệt","Tăng khả năng hấp thu dinh dưỡng","Gây bệnh mạnh hơn"],a:1},
+{id:"5-190",q:"Câu 190",o:["Clostridium tetani","Clostridium botulinum","Bacillus anthracis","Mycobacterium tuberculosis"],a:0},
+{id:"5-191",q:"Nhận định nào sau đây đúng về việc phòng ngừa bệnh lậu?",o:["Đã có vaccine phòng bệnh hiệu quả","Có thể phòng bằng vaccine uống","Bệnh lậu chưa có vaccine phòng bệnh","Phải tiêm huyết thanh định kỳ"],a:2},
+{id:"5-192",q:"Sau khi nhuộm Gram, lậu cầu (Neisseria gonorrhoeae) có hình ảnh đặc trưng là gì?",o:["Song cầu Gram âm","Cầu khuẩn Gram dương","Trực khuẩn Gram âm","Song cầu Gram dương"],a:0},
+{id:"5-193",q:"Nhận định nào về Staphylococcus aureus là đúng nhất dựa trên hình thể của nó?",o:["Là xoắn khuẩn","Là phẩy khuẩn","Là một loại trực khuẩn","Không phải là trực khuẩn"],a:3},
+{id:"5-194",q:"Vi khuẩn Salmonella sở hữu những loại kháng nguyên nào?",o:["Chỉ có kháng nguyên O","Kháng nguyên H và enzyme nội bào","Kháng nguyên O, H và K/Vi","Kháng nguyên nang và vỏ bọc"],a:2}
+],
+// G6: Bệnh do Virus
+[
+{id:"6-195",q:"Loại virus nào là căn nguyên thường gặp gây nhiễm khuẩn/nhiễm virus hô hấp ở trẻ nhỏ?",o:["HIV","HBV","RSV","HPV"],a:2},
+{id:"6-196",q:"Giai đoạn toàn phát của bệnh quai bị, người bệnh thường có triệu chứng điển hình nào?",o:["Nổi ban đỏ toàn thân","Viêm tuyến nước bọt mang tai","Co giật, sùi bọt mép","Tiêu chảy cấp"],a:1},
+{id:"6-197",q:"Câu 197",o:["Viêm não cấp","Viêm màng não mủ","Áp xe não","Viêm tủy sống"],a:0},
+{id:"6-198",q:"Đặc điểm về cấu trúc vật chất di truyền của Rotavirus là gì?",o:["ADN sợi đơn","ADN sợi kép","ARN sợi kép","ARN sợi đơn"],a:2},
+{id:"6-199",q:"Virus viêm gan C có đặc tính nào khi lây nhiễm vào cơ thể?",o:["Chỉ gây bệnh cấp tính rồi tự khỏi","Không bao giờ tồn tại trong máu","Có thể gây bệnh mạn tính","Bị tiêu diệt hoàn toàn bởi kháng sinh"],a:2},
+{id:"6-200",q:"Virus viêm gan A lây truyền chủ yếu qua con đường nào?",o:["Đường máu","Đường tình dục","Đường tiêu hóa","Mẹ truyền sang con"],a:2},
+{id:"6-201",q:"Hậu quả nghiêm trọng có thể xảy ra ở hệ vận động khi mắc bệnh bại liệt là gì?",o:["Gãy xương tự phát","Viêm đa khớp","Liệt chi","Cứng khớp gối"],a:2},
+{id:"6-202",q:"Herpes simplex virus lây truyền phổ biến qua con đường nào?",o:["Qua đường tình dục","Qua ăn uống","Qua muỗi đốt","Qua không khí"],a:0},
+{id:"6-203",q:"Khẳng định nào sau đây là ĐÚNG về đường lây truyền của HIV?",o:["HIV lây qua bắt tay","HIV không lây qua tiếp xúc da thông thường","HIV lây qua đường hô hấp","HIV lây khi bơi chung bể bơi"],a:1},
+{id:"6-204",q:"Câu 204",o:["Phá hủy toàn bộ hồng cầu","Làm giảm tế bào CD4","Ức chế sinh tổng hợp bạch cầu trung tính","Ngăn cản sản xuất tiểu cầu"],a:1},
+{id:"6-205",q:"Đường lây truyền chính của virus HIV là gì?",o:["Qua ăn chung, uống chung","Hô hấp, giọt bắn","Quan hệ tình dục không an toàn, mẹ truyền sang con, truyền máu/dùng chung kim tiêm","Muỗi đốt, côn trùng cắn"],a:2},
+{id:"6-206",q:"Câu 206",o:["Tiêm vaccine định kỳ","Cách ly người bệnh hoàn toàn","An toàn truyền máu và quan hệ tình dục an toàn","Phun thuốc diệt muỗi"],a:2},
+{id:"6-207",q:"Virus HPV là nguyên nhân chính gây ra tình trạng gì ở người?",o:["Suy giảm miễn dịch","U nhú ở người","Viêm gan cấp","Viêm phổi không điển hình"],a:1},
+{id:"6-208",q:"Virus viêm gan B lây truyền qua ba con đường chính nào?",o:["Máu, tình dục và mẹ truyền sang con","Tiêu hóa, hô hấp và máu","Tình dục, tiêu hóa và da niêm mạc","Máu, hô hấp và côn trùng cắn"],a:0},
+{id:"6-209",q:"Câu 209",o:["Uống thuốc dự phòng hàng ngày","Tiêm vaccine, quan hệ tình dục an toàn và an toàn truyền máu","Chỉ cần ăn uống hợp vệ sinh","Mắc màn khi đi ngủ"],a:1},
+{id:"6-210",q:"Câu 210",o:["Viêm tử cung","Viêm tinh hoàn, viêm buồng trứng; có thể ảnh hưởng khả năng sinh sản","Viêm tuyến tiền liệt cấp","Suy thận mạn"],a:1},
+{id:"6-211",q:"Ngoài cơ quan sinh dục, quai bị còn có thể gây ra biến chứng ở đâu?",o:["Viêm gan","Viêm ruột","Viêm não - màng não","Viêm cơ tim"],a:2},
+{id:"6-212",q:"Một trong những biến chứng có thể gặp ở mắt của người mắc bệnh sởi là gì?",o:["Đục thủy tinh thể","Tăng nhãn áp","Khô giác mạc","Lác mắt"],a:2},
+{id:"6-213",q:"Câu 213",o:["Suyễn và ù tai","Viêm tai giữa, viêm phổi","Thủng màng nhĩ và xơ phổi","Viêm phế quản mạn tính"],a:1},
+{id:"6-214",q:"Câu 214",o:["Virus Zika","Virus Ebola","Virus Dengue","Virus viêm não Nhật Bản"],a:2},
+{id:"6-215",q:"Virus dại có đặc điểm nhân lên ở loại tế bào nào trong cơ thể?",o:["Tế bào gan","Tế bào cơ vân","Tế bào thần kinh","Tế bào biểu mô"],a:2},
+{id:"6-216",q:"Phương pháp đặc hiệu và hiệu quả nhất để ngăn ngừa nhiễm viêm gan B là gì?",o:["Rửa tay thường xuyên","Dùng kháng sinh dự phòng","Tiêm huyết thanh kháng dại","Tiêm vaccine viêm gan B"],a:3},
+{id:"6-217",q:"Ứng dụng của vaccine bại liệt là gì?",o:["Điều trị khỏi hẳn khi đã mắc bệnh bại liệt","Giúp phòng bệnh bại liệt","Tạo trí nhớ miễn dịch chống lại viêm màng não","Phục hồi chức năng chi bị liệt"],a:1},
+{id:"6-218",q:"Vi khuẩn lỵ (Shigella) khác trực khuẩn tả ở điểm nào về cơ chế gây bệnh?",o:["Trực khuẩn lỵ có khả năng xâm nhập và nội độc tố quyết định khả năng gây bệnh","Lỵ lây qua đường hô hấp","Lỵ chỉ gây bệnh khi tạo nha bào","Lỵ tiết enzyme làm đông máu"],a:0},
+{id:"6-219",q:"Sốt xuất huyết (Dengue) KHÔNG lây qua đường nào?",o:["Muỗi vằn đốt","Đường tiêu hóa","Đường máu","Mẹ sang con (hiếm gặp) (Dựa trên kiến thức loại trừ: Sốt xuất huyết do virus Dengue gây ra và không lây qua hô hấp/tiêu hóa)"],a:1},
+{id:"6-220",q:"Khi nhiễm virus bại liệt, hệ cơ quan nào chịu ảnh hưởng dẫn đến nguy cơ liệt chi?",o:["Hệ tiêu hóa","Hệ thần kinh","Hệ hô hấp","Hệ tuần hoàn"],a:1},
+{id:"6-221",q:"Để phòng ngừa lây nhiễm HIV qua đường máu, biện pháp nào sau đây là cần thiết nhất?",o:["Cách ly người bệnh","An toàn truyền máu và không dùng chung kim tiêm","Uống thuốc diệt virus","Khử trùng nguồn nước"],a:1},
+{id:"6-222",q:"Đặc tính \"kháng cồn, kháng acid\" giúp nhận diện được loại vi khuẩn nào?",o:["Mycoplasma","Trực khuẩn lao","Lậu cầu","Xoắn khuẩn giang mai"],a:1},
+{id:"6-223",q:"Virus HPV, HSV (Herpes simplex) và HIV có chung một con đường lây truyền nào?",o:["Qua đường hô hấp","Qua ăn uống","Qua quan hệ tình dục","Qua vệt cắn của động vật"],a:2},
+{id:"6-224",q:"Sởi, quai bị, và bại liệt là các bệnh truyền nhiễm đều có thể được phòng ngừa bằng phương pháp nào?",o:["Uống kháng sinh phổ rộng","Tiêm vaccine","Phun khử khuẩn môi trường","Dùng huyết thanh miễn dịch"],a:1}
+],
+];
+const EXAM_NAMES=["Đại cương VK & Virus","Nhiễm trùng, Độc tố & Kháng sinh","Ký sinh trùng & Đơn bào","Miễn dịch & Vaccine","VK gây bệnh đặc hiệu","Bệnh do Virus","Tổng hợp tất cả","📝 Đề thi thử"];
+const L=['A','B','C','D'],OC=['oA','oB','oC','oD'];
+let activeExam=-1,activeQs=[],cur=0,score=0,streak=0,selected=null,confirmed=false,answers=[],startTime=null;
+
+(()=>{const p=document.getElementById('pts');const cols=['#60a5fa','#34d399','#fbbf24','#a78bfa','#f472b6'];for(let i=0;i<18;i++){const el=document.createElement('div');el.className='particle';const s=Math.random()*6+3;el.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;background:${cols[i%5]};animation-duration:${8+Math.random()*12}s;animation-delay:${Math.random()*10}s;`;p.appendChild(el);}})();
+
+const AC=window.AudioContext||window.webkitAudioContext;let ac;
+function gAC(){if(!ac)ac=new AC();return ac;}
+function playCorrect(){try{const c=gAC();[523,659,784,1047].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;o.type='sine';const t=c.currentTime+i*.1;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.18,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+.25);o.start(t);o.stop(t+.25);});}catch(e){}}
+function playWrong(){try{const c=gAC();[220,196].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;o.type='sawtooth';const t=c.currentTime+i*.15;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.15,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+.3);o.start(t);o.stop(t+.3);});}catch(e){}}
+function playWow(){try{const c=gAC();[261,330,392,523,659,784,1047,1319].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;o.type='sine';const t=c.currentTime+i*.06;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.12,t+.04);g.gain.exponentialRampToValueAtTime(.001,t+.4);o.start(t);o.stop(t+.4);});}catch(e){}}
+function playClick(){try{const c=gAC(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=800;o.type='sine';g.gain.setValueAtTime(.08,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.06);o.start();o.stop(c.currentTime+.06);}catch(e){}}
+function confetti(n=30){const cols=['#3b82f6','#34d399','#fbbf24','#a78bfa','#f97316'];for(let i=0;i<n;i++){const el=document.createElement('div');el.className='conf';const s=6+Math.random()*8;el.style.cssText=`width:${s}px;height:${s*1.8}px;left:${10+Math.random()*80}%;background:${cols[i%cols.length]};animation-delay:${Math.random()*.6}s;animation-duration:${1+Math.random()*.8}s;border-radius:${Math.random()>.5?'50%':'3px'}`;document.body.appendChild(el);setTimeout(()=>el.remove(),2200);}}
+function shuffle(arr){let a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function sel(idx){activeExam=idx;document.querySelectorAll('.exam-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));document.getElementById('btnStart').disabled=false;}
+
+function startQuiz(){
+  if(activeExam<0)return;
+  if(activeExam===7) activeQs=shuffle(EXAMS.flat()).slice(0,40);
+  else if(activeExam===6) activeQs=shuffle(EXAMS.flat());
+  else activeQs=[...EXAMS[activeExam]];
+  cur=0;score=0;streak=0;selected=null;confirmed=false;answers=[];startTime=Date.now();
+  document.getElementById('welcome').style.display='none';
+  document.getElementById('quiz').style.display='block';
+  const tag=document.getElementById('chuDeTag');
+  tag.textContent=EXAM_NAMES[activeExam];
+  if(activeExam===7){tag.style.background='rgba(239,68,68,.2)';tag.style.borderColor='rgba(239,68,68,.4)';tag.style.color='#fca5a5';}
+  else{tag.style.background='';tag.style.borderColor='';tag.style.color='';}
+  render();
+}
+
+function render(){
+  const q=activeQs[cur],T=activeQs.length;
+  document.getElementById('qN').textContent='CÂU '+q.id.split('-')[1];
+  document.getElementById('qT').textContent=q.q;
+  document.getElementById('pTxt').textContent=`${cur+1}/${T}`;
+  document.getElementById('pFill').style.width=((cur/T)*100)+'%';
+  document.getElementById('fb').style.display='none';
+  document.getElementById('btnC').style.display='block';
+  document.getElementById('btnC').disabled=true;
+  document.getElementById('btnN').style.display='none';
+  const opts=document.getElementById('opts');opts.innerHTML='';
+  q.o.forEach((txt,i)=>{
+    const b=document.createElement('button');b.className=`opt ${OC[i]}`;b.id='o'+i;
+    b.innerHTML=`<span class="opt-l">${L[i]}</span><span class="opt-t">${txt}</span><span class="opt-i" id="ic${i}"></span>`;
+    b.onclick=()=>selOpt(i);opts.appendChild(b);
+  });
+}
+
+function selOpt(i){if(confirmed)return;playClick();selected=i;document.querySelectorAll('.opt').forEach(b=>b.classList.remove('selected'));document.getElementById('o'+i).classList.add('selected');document.getElementById('btnC').disabled=false;}
+
+function confirmAns(){
+  if(selected===null||confirmed)return;confirmed=true;
+  const q=activeQs[cur],ok=selected===q.a;
+  answers.push({id:q.id,sel:selected,ans:q.a,ok});
+  if(ok){score++;streak++;if(streak>=3)confetti(12);playCorrect();}else{streak=0;playWrong();}
+  updStreak();
+  document.querySelectorAll('.opt').forEach((b,i)=>{
+    b.classList.add('disabled');b.classList.remove('selected');
+    if(i===q.a){b.classList.add('correct');document.getElementById('ic'+i).textContent='✓';}
+    else if(i===selected&&selected!==q.a){b.classList.add('wrong');document.getElementById('ic'+i).textContent='✗';}
+    else b.classList.add('dim');
+  });
+  const fb=document.getElementById('fb');fb.style.display='block';
+  fb.className='feedback '+(ok?'ok':'fail');
+  fb.innerHTML=ok?'🎯 Chính xác! Tuyệt vời!':`❌ Sai rồi! Đáp án đúng: <b>${L[q.a]}. ${q.o[q.a]}</b>`;
+  document.getElementById('btnC').style.display='none';
+  document.getElementById('btnN').style.display='block';
+  document.getElementById('sTxt').textContent=score+' điểm';
+  document.getElementById('gScore').textContent=score;
+}
+
+function updStreak(){const el=document.getElementById('stk');el.textContent='🔥 '+streak;el.classList.remove('pop');void el.offsetWidth;if(streak>0)el.classList.add('pop');}
+
+function nextQ(){
+  if(cur+1>=activeQs.length){showResult();return;}
+  cur++;selected=null;confirmed=false;
+  const qEl=document.getElementById('quiz');qEl.style.animation='none';void qEl.offsetWidth;qEl.style.animation='fadeUp .35s ease';
+  render();
+}
+
+function showResult(){
+  document.getElementById('quiz').style.display='none';
+  document.getElementById('result').style.display='block';
+  const T=activeQs.length,pct=Math.round((score/T)*100);
+  playWow();setTimeout(()=>confetti(50),200);
+  document.getElementById('rFire').textContent=pct>=80?'🏆':pct>=60?'🎉':'📖';
+  document.getElementById('rBig').textContent=score+'/'+T;
+  document.getElementById('rBig').style.color=pct>=80?'#4ade80':pct>=60?'#facc15':'#f87171';
+  document.getElementById('rPct').textContent=pct+'% chính xác';
+  document.getElementById('rLbl').textContent=pct>=80?'Xuất sắc! Bạn nắm vững kiến thức 🌟':pct>=60?'Khá tốt! Cố gắng thêm chút nữa 💪':'Cần ôn thêm, đừng nản nhé! 📚';
+  document.getElementById('rSub').textContent=EXAM_NAMES[activeExam];
+  const sb=document.getElementById('scoreboard');
+  if(activeExam===7){
+    sb.style.display='block';
+    const diem=(score/T*10).toFixed(1);
+    const elapsed=Math.round((Date.now()-startTime)/1000);
+    const mm=Math.floor(elapsed/60),ss=elapsed%60;
+    let grade=diem>=9?'Xuất sắc 🌟':diem>=8?'Giỏi 🥇':diem>=6.5?'Khá 👍':diem>=5?'Trung bình 😐':'Yếu – Cần ôn thêm 📖';
+    document.getElementById('sbCorrect').textContent=score+'/'+T;
+    document.getElementById('sbScore').textContent=diem+' / 10';
+    document.getElementById('sbGrade').textContent=grade;
+    document.getElementById('sbTime').textContent=`${mm} phút ${ss} giây`;
+    document.getElementById('btnRestart').textContent='🔄 Thi lại (đề mới)';
+  } else {
+    sb.style.display='none';
+    document.getElementById('btnRestart').textContent='🔄 Làm lại';
+  }
+  const rl=document.getElementById('rList');rl.innerHTML='';
+  answers.forEach(a=>{
+    const d=document.createElement('div');d.className='ri '+(a.ok?'ok':'fail');
+    d.innerHTML=`<span class="ri-ic">${a.ok?'✓':'✗'}</span><span class="ri-lbl">Câu ${a.id.split('-')[1]}</span>${!a.ok?`<span class="ri-det">Đúng: <b>${L[a.ans]}</b></span>`:''}`;
+    rl.appendChild(d);
+  });
+}
+
+function restart(){
+  if(activeExam===7) activeQs=shuffle(EXAMS.flat()).slice(0,40);
+  else if(activeExam===6) activeQs=shuffle(EXAMS.flat());
+  else activeQs=[...EXAMS[activeExam]];
+  cur=0;score=0;streak=0;selected=null;confirmed=false;answers=[];startTime=Date.now();
+  document.getElementById('result').style.display='none';
+  document.getElementById('sTxt').textContent='0 điểm';
+  document.getElementById('gScore').textContent='0';
+  document.getElementById('stk').textContent='🔥 0';
+  document.getElementById('quiz').style.display='block';
+  render();
+}
+
+function backToMenu(){
+  document.getElementById('result').style.display='none';
+  document.getElementById('welcome').style.display='block';
+  activeExam=-1;
+  document.querySelectorAll('.exam-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('btnStart').disabled=true;
+}
+</script>
+</body>
+</html>
